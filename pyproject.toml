@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "json_to_csv"
+version = "1"
+requires-python = ">=3"
+description = "Convert list of json objects to csv"
+authors = [
+    { name="Hylke Foeken", email="h.foeken@gmail.com" },
+]
+
+[project.scripts]
+json2csv = "json_to_csv.json_to_csv:main"
