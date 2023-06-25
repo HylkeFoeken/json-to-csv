@@ -1,8 +1,10 @@
 import argparse
+import os.path
 import sys
 import json
 import csv
 from typing import IO
+from dateutil.parser import parse
 
 
 def _parse_args():
@@ -13,6 +15,9 @@ def _parse_args():
     parser.add_argument('-e', '--exclude', nargs='*', default=set(), help='Exclude fields, defaults to none')
     parser.add_argument('-o', '--order', nargs='*', default=[], help='Order fields, defaults to none')
     parser.add_argument('-n', '--number', nargs='?', default=-1, help='Number of records to process, defaults to all')
+
+    parser.add_argument('-d', '--date-fields', nargs='*', default=set(), help='Date fields, defaults to none')
+    parser.add_argument('-df', '--date-format', nargs='?', default=None, help='Datetime format, defaults to none')
     return parser.parse_args()
 
 
@@ -81,11 +86,29 @@ def order_fields(header: set, order_list: list):
     return ordered_header_part + list(unordered_header_part)
 
 
+def format_datetime_fields(_data: list, datetime_fields: set, datetime_format: str):
+    formatted_list = []
+    for row in _data:
+        for key, value in row.items():
+            if key in datetime_fields:
+                if datetime_format:
+                    datetime_value = parse(value)
+                    formatted_datetime_value = datetime_value.strftime(datetime_format)
+                else:
+                    formatted_datetime_value = value
+
+                row[key] = formatted_datetime_value
+
+        formatted_list.append(row)
+
+    return formatted_list
+
+
 def main():
-    # lees de argumenten uit de aanroep
+    # parse arguments from program options
     args = _parse_args()
 
-    # deserialiseer python objecten uit json regels
+    # read json records from file
     with open_filename_arg(args.infile, mode='rt', newline='') as infile:
         data, header = _deserialize_json(infile, int(args.number))
 
@@ -95,13 +118,20 @@ def main():
     # exclude fields
     header = exclude_fields(header, set(args.exclude))
 
+    # format datetime fields
+    data = format_datetime_fields(data, set(args.date_fields), args.date_format)
+
     # order fields
     header = order_fields(header, args.order)
 
-    # serialiseer de python objecten als csv bestand
+    # serialize python objects as csv file
     with open_filename_arg(args.outfile, mode='w', newline='') as outfile:
         _serialize_csv(outfile, list(header), data)
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except argparse.ArgumentTypeError as e:
+        print(e)
+        exit(1)
