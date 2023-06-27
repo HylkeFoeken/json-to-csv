@@ -10,14 +10,14 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  pypi-publish:
+    name: Upload release to PyPI
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.8", "3.9", "3.10"]
-
+    environment:
+      name: pypi
+      url: https://pypi.org/p/json_to_csv_filter
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -37,8 +37,5 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Build package
       run: python -m build
-    - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}        
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1      
