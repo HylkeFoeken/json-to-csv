@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "json_to_csv_filter"
-version = "1.1"
+dynamic = ["version"]
 requires-python = ">=3.7"
 description = "Convert list of json objects to csv with optional filters"
 authors = [
@@ -22,4 +22,7 @@ classifiers = [
 "Bug Tracker" = "https://github.com/hylkefoeken/json-to-csv/issues"
 
 [project.scripts]
-json2csv = "json_to_csv.json_to_csv:main"
+json2csv = "json_to_csv_filter.json_to_csv:main"
+
+[tool.hatch.version]
+path = "src/json_to_csv_filter/__init__.py"
