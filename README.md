@@ -1,4 +1,8 @@
-# json-to-csv
+# Description
+Converts a list of json objects to a csv with optional filtering, sorting and date formatting.
+
+# Usage
+```bash
 usage: json_to_csv.py [-h] [-i [INCLUDE ...]] [-e [EXCLUDE ...]] [-o [ORDER ...]] [-n [NUMBER]] [-d [DATE_FIELDS ...]] [-df [DATE_FORMAT]]
                       [infile] [outfile]
 
@@ -22,3 +26,4 @@ optional arguments:
                         Date fields, defaults to none
   -df [DATE_FORMAT], --date-format [DATE_FORMAT]
                         Datetime format, defaults to none
+```
