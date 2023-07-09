@@ -1,6 +1,12 @@
 # Description
 Converts a list of json objects to a csv with optional filtering, sorting and date formatting.
 
+# installation
+This commands installs the package and an application script: json2csv. 
+```bash
+pip install json-to-csv-filter
+```
+
 # Usage
 ```bash
 usage: json_to_csv.py [-h] [-i [INCLUDE ...]] [-e [EXCLUDE ...]] [-o [ORDER ...]] [-n [NUMBER]] [-d [DATE_FIELDS ...]] [-df [DATE_FORMAT]]
@@ -26,4 +32,10 @@ optional arguments:
                         Date fields, defaults to none
   -df [DATE_FORMAT], --date-format [DATE_FORMAT]
                         Datetime format, defaults to none
+```
+
+# Examples
+## convert a json file to standard out
+```bash
+json2csv -i ais-messages.txt
 ```
