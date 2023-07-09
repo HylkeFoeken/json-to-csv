@@ -1,10 +1,10 @@
 import argparse
-import os.path
 import sys
 import json
 import csv
-from time import strftime
 from typing import IO
+
+import babel
 from dateutil.parser import parse, ParserError
 from babel.dates import format_datetime
 
@@ -20,13 +20,14 @@ def _parse_args():
     parser.add_argument('-n', '--number', nargs='?', default=-1, help='Number of records to process, defaults to all')
     parser.add_argument('-d', '--date-fields', nargs='*', default=set(), help='Date fields, defaults to none')
     parser.add_argument('-df', '--date-format', nargs='?', default=None, help='Datetime format, defaults to nld short '
-                                                                              'date format', )
+                                                                              'date format')
+    parser.add_argument('-l', '--locale', nargs='?', default="nld", help='locale id, defaults to nld')
 
     parser.epilog = 'See https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes for ' \
                     'datetime format strings and https://babel.pocoo.org/en/latest/ for default nld locale datetime ' \
                     'format'
 
-    return parser.parse_args()
+    return parser
 
 
 def _deserialize_json(json_input_file: IO, max_number_of_records: int):
@@ -68,8 +69,8 @@ def open_filename_arg(filename: str, mode: str, newline: str):
     # all other arguments are used as file names
     try:
         return open(filename, mode=mode, newline=newline)
-    except OSError as e:
-        args = {'filename': filename, 'error': e}
+    except OSError as os_error:
+        args = {'filename': filename, 'error': os_error}
         message = "can't open '%(filename)s': %(error)s"
         raise argparse.ArgumentTypeError(message % args)
 
@@ -94,7 +95,7 @@ def order_fields(header: set, order_list: list):
     return ordered_header_part + list(unordered_header_part)
 
 
-def format_datetime_fields(_data: list, datetime_fields: set, datetime_format: str):
+def format_datetime_fields(_data: list, datetime_fields: set, datetime_format: str, locale: str):
     formatted_list = []
     for row in _data:
         for key, value in row.items():
@@ -105,7 +106,7 @@ def format_datetime_fields(_data: list, datetime_fields: set, datetime_format: s
                     if datetime_format:
                         formatted_datetime_value = datetime_value.strftime(datetime_format)
                     else:
-                        formatted_datetime_value = format_datetime(datetime_value, format='short', locale='nld')
+                        formatted_datetime_value = format_datetime(datetime_value, format='short', locale=locale)
                 except ParserError:
                     formatted_datetime_value = value
 
@@ -118,7 +119,14 @@ def format_datetime_fields(_data: list, datetime_fields: set, datetime_format: s
 
 def main():
     # parse arguments from program options
-    args = _parse_args()
+    parser = _parse_args()
+    args = parser.parse_args()
+
+    try:
+        datetime_locale = babel.Locale.parse(args.locale)
+    except babel.UnknownLocaleError:
+        datetime_locale = parser.get_default('locale')
+        print("Unknown locale, using default: {0}\n".format(datetime_locale))
 
     # read json records from file
     with open_filename_arg(args.infile, mode='rt', newline='') as infile:
@@ -131,7 +139,7 @@ def main():
     header = exclude_fields(header, set(args.exclude))
 
     # format datetime fields
-    data = format_datetime_fields(data, set(args.date_fields), args.date_format)
+    data = format_datetime_fields(data, set(args.date_fields), args.date_format, datetime_locale)
 
     # order fields
     header = order_fields(header, args.order)
