@@ -3,21 +3,29 @@ import os.path
 import sys
 import json
 import csv
+from time import strftime
 from typing import IO
-from dateutil.parser import parse
+from dateutil.parser import parse, ParserError
+from babel.dates import format_datetime
 
 
 def _parse_args():
     parser = argparse.ArgumentParser(description='Convert list of json objects to csv')
+
     parser.add_argument('infile', nargs='?', type=str, default='-', help='Input file, defaults to STDIN')
     parser.add_argument('outfile', nargs='?', type=str, default='-', help='Output file, defaults to STDOUT')
     parser.add_argument('-i', '--include', nargs='*', default=set(), help='Include fields, defaults to all')
     parser.add_argument('-e', '--exclude', nargs='*', default=set(), help='Exclude fields, defaults to none')
     parser.add_argument('-o', '--order', nargs='*', default=[], help='Order fields, defaults to none')
     parser.add_argument('-n', '--number', nargs='?', default=-1, help='Number of records to process, defaults to all')
-
     parser.add_argument('-d', '--date-fields', nargs='*', default=set(), help='Date fields, defaults to none')
-    parser.add_argument('-df', '--date-format', nargs='?', default=None, help='Datetime format, defaults to none')
+    parser.add_argument('-df', '--date-format', nargs='?', default=None, help='Datetime format, defaults to nld short '
+                                                                              'date format', )
+
+    parser.epilog = 'See https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes for ' \
+                    'datetime format strings and https://babel.pocoo.org/en/latest/ for default nld locale datetime ' \
+                    'format'
+
     return parser.parse_args()
 
 
@@ -91,10 +99,14 @@ def format_datetime_fields(_data: list, datetime_fields: set, datetime_format: s
     for row in _data:
         for key, value in row.items():
             if key in datetime_fields:
-                if datetime_format:
+                try:
                     datetime_value = parse(value)
-                    formatted_datetime_value = datetime_value.strftime(datetime_format)
-                else:
+
+                    if datetime_format:
+                        formatted_datetime_value = datetime_value.strftime(datetime_format)
+                    else:
+                        formatted_datetime_value = format_datetime(datetime_value, format='short', locale='nld')
+                except ParserError:
                     formatted_datetime_value = value
 
                 row[key] = formatted_datetime_value
