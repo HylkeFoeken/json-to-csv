@@ -9,8 +9,7 @@ pip install json-to-csv-filter
 
 # Usage
 ```bash
-usage: json_to_csv.py [-h] [-i [INCLUDE ...]] [-e [EXCLUDE ...]] [-o [ORDER ...]] [-n [NUMBER]] [-d [DATE_FIELDS ...]] [-df [DATE_FORMAT]]
-                      [infile] [outfile]
+usage: json_to_csv.py [-h] [-i [INCLUDE ...]] [-e [EXCLUDE ...]] [-o [ORDER ...]] [-n [NUMBER]] [-d [DATE_FIELDS ...]] [-df [DATE_FORMAT]] [-l [LOCALE]] [infile] [outfile]
 
 Convert list of json objects to csv
 
@@ -31,7 +30,11 @@ optional arguments:
   -d [DATE_FIELDS ...], --date-fields [DATE_FIELDS ...]
                         Date fields, defaults to none
   -df [DATE_FORMAT], --date-format [DATE_FORMAT]
-                        Datetime format, defaults to none
+                        Custom datetime format
+  -l [LOCALE], --locale [LOCALE]
+                        locale id, defaults to nld
+
+See https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes for datetime format strings and https://babel.pocoo.org/en/latest/ for default nld locale datetime format
 ```
 
 # Examples

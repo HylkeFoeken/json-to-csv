@@ -19,8 +19,7 @@ def _parse_args():
     parser.add_argument('-o', '--order', nargs='*', default=[], help='Order fields, defaults to none')
     parser.add_argument('-n', '--number', nargs='?', default=-1, help='Number of records to process, defaults to all')
     parser.add_argument('-d', '--date-fields', nargs='*', default=set(), help='Date fields, defaults to none')
-    parser.add_argument('-df', '--date-format', nargs='?', default=None, help='Datetime format, defaults to nld short '
-                                                                              'date format')
+    parser.add_argument('-df', '--date-format', nargs='?', default=None, help='Custom datetime format')
     parser.add_argument('-l', '--locale', nargs='?', default="nld", help='locale id, defaults to nld')
 
     parser.epilog = 'See https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes for ' \
